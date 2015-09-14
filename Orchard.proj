@@ -248,10 +248,16 @@
       OrchardWebBinaries="@(Stage-Orchard-Web-Bins)">
       <Output TaskParameter="ExcludedBinaries" ItemName="FilterThemeBinaries-ExcludedBinariesFromThemes"/>
     </FilterModuleBinaries>
+    <FilterModuleBinaries
+      ModulesBinaries="@(Stage-Themes-Binaries)"
+      OrchardWebBinaries="@(Stage-Modules-Binaries)">
+      <Output TaskParameter="ExcludedBinaries" ItemName="FilterThemeBinaries-ExcludedModuleBinariesFromThemes"/>
+    </FilterModuleBinaries>
 
     <ItemGroup>
       <Stage-Modules-Binaries-Unique Include="@(Stage-Modules-Binaries)"  Exclude="@(FilterModuleBinaries-ExcludedBinaries)"/>
-      <Stage-Themes-Binaries-Unique Include="@(Stage-Themes-Binaries)"  Exclude="@(FilterThemeBinaries-ExcludedBinariesFromThemes)"/>
+      <Stage-Themes-Binaries-Almost-Unique Include="@(Stage-Themes-Binaries)"  Exclude="@(FilterThemeBinaries-ExcludedBinariesFromThemes)"/>
+      <Stage-Themes-Binaries-Unique Include="@(Stage-Themes-Binaries-Almost-Unique)"  Exclude="@(FilterThemeBinaries-ExcludedModuleBinariesFromThemes)"/>
     </ItemGroup>
 
     <Copy SourceFiles="@(Stage-Web);@(Stage-Web-Config);@(Stage-License)" DestinationFolder="$(StageFolder)\%(RecursiveDir)"/>

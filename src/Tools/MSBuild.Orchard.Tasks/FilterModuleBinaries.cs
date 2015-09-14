@@ -17,12 +17,20 @@ namespace MSBuild.Orchard.Tasks {
             if (ModulesBinaries == null || OrchardWebBinaries == null)
                 return true;
 
+            // Exclude binaries that are included in the orchard web bin folder
             var orchardWebAssemblies = new HashSet<string>(
                 OrchardWebBinaries.Select(item => Path.GetFileName(item.ItemSpec)),
                 StringComparer.InvariantCultureIgnoreCase);
 
+            // Also exclude binaries that are from other modules that have been copied local. 
+            var sourceBinaries = ModulesBinaries
+                .Where(item => Path.GetDirectoryName(item.ItemSpec).Contains(Path.GetFileNameWithoutExtension(item.ItemSpec)))
+                .Select(item => Path.GetFileNameWithoutExtension(item.ItemSpec))
+                .Distinct()
+                .ToArray();
+
             ExcludedBinaries = ModulesBinaries
-                .Where(item => orchardWebAssemblies.Contains(Path.GetFileName(item.ItemSpec)))
+                .Where(item => orchardWebAssemblies.Contains(Path.GetFileName(item.ItemSpec)) || (sourceBinaries.Contains(Path.GetFileNameWithoutExtension(item.ItemSpec)) && !Path.GetDirectoryName(item.ItemSpec).Contains(Path.GetFileNameWithoutExtension(item.ItemSpec))))
                 .Select(item => new TaskItem(item))
                 .ToArray();
 
